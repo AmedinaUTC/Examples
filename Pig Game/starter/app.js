@@ -9,7 +9,7 @@ GAME RULES:
 
 */
 
-var currentScore1,currentScore2,globalScore1,globalScore2 = 0;
+var currentScore,score,activeplayer;
 
 NewGame();
 
@@ -23,20 +23,56 @@ document.querySelector(".btn-roll").addEventListener('click',function(){
     diceDOM.style.display = "block";
     diceDOM.src = "dice-" + dice + ".png";
 
+    if(dice != 1){
+        currentScore += dice;
+        document.getElementById("current-" + activeplayer).innerText = currentScore;
+    }
+    else{
+        NextPlayer();
+    }
+});
+
+document.querySelector(".btn-hold").addEventListener('click',function(){
+
+    score[activeplayer] += currentScore;
+    document.getElementById("score-" + activeplayer).innerText = score[activeplayer];
+    
+    if(score[activeplayer] >= 100){
+        document.querySelector(".player-" + activeplayer +"-panel").classList.add("winner");
+        document.getElementById("name-" + activeplayer).innerText = "WINNER!";
+    }
+    
+    NextPlayer();
 
 });
 
+function NextPlayer(){
+    
+    document.getElementById("current-" + activeplayer).innerText = 0;
+
+    activeplayer = activeplayer === 0 ? 1 : 0;
+    currentScore = 0;
+
+    document.querySelector(".player-0-panel").classList.toggle("active");
+    document.querySelector('.player-1-panel').classList.toggle("active");
+
+    document.querySelector(".dice").style.display = 'none';
+}
+
 function NewGame(){
 
-    currentScore1 = 0;
-    currentScore2 = 0;
-    globalScore1 = 0;
-    globalScore2 = 0;
+    currentScore = 0;
+    score = [0,0];
+    activeplayer = 0;
 
-    document.getElementById("score-0").innerText = globalScore1;
-    document.getElementById("score-1").innerText = globalScore2;
-    document.getElementById("current-0").innerText = currentScore1;
-    document.getElementById("current-1").innerText= currentScore2;
+    document.getElementById("score-0").innerText = 0;
+    document.getElementById("score-1").innerText = 0;
+    document.getElementById("current-0").innerText = 0;
+    document.getElementById("current-1").innerText= 0;
+
+    document.getElementById("name-0").innerText = "Player 1";
+    document.getElementById("name-1").innerText = "Player 2";
+    
 
     var dice = document.getElementsByClassName("dice")[0];
     dice.setAttribute("style","display:none");
