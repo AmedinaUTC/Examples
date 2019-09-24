@@ -29,6 +29,16 @@ var budgetController = (function (){
 
     };
 
+    var calculateTotal = function(type){
+        var sum = 0;
+
+        data.allItems[type].forEach(element => {
+            sum += element.value;
+        });
+
+        data.totals[type] = sum;
+    }
+
     return{
         addItem: function(type,des,val){
 
@@ -52,6 +62,28 @@ var budgetController = (function (){
 
             return newItem;
 
+        },
+        calculateBudget:  function(){
+
+            calculateTotal('exp');
+            calculateTotal('inc');
+
+            data.budget = data.totals.inc - data.totals.exp;
+
+            if(data.totals.inc > 0){
+                data.percentage = Math.round((data.totals.exp/data.totals.inc) * 100);
+            }
+            else{
+                data.percentage = -1;
+            }
+        },
+        getBudget: function(){
+            return {
+                budget: data.budget,
+                totalInc: data.totals.inc,
+                totalExp: data.totals.exp,
+                percentage: data.percentage
+            };
         }
 
     }
@@ -68,7 +100,27 @@ var UIController = (function(){
         inputType: '.add__type',
         incomeContainer: '.income__list',
         expensesContainer:'.expenses__list',
+        budgetValue:'.budget__value'
     };
+
+    var formatNumber = function(num, type) {
+        var numSplit, int, dec, type;
+        num = Math.abs(num);
+        num = num.toFixed(2);
+
+        numSplit = num.split('.');
+
+        int = numSplit[0];
+        if (int.length > 3) {
+            int = int.substr(0, int.length - 3) + ',' + int.substr(int.length - 3, 3); //input 23510, output 23,510
+        }
+
+        dec = numSplit[1];
+
+        return (type === 'exp' ? '-' : '+') + ' ' + int + '.' + dec;
+
+    };
+    
 
     return{
 
@@ -102,9 +154,11 @@ var UIController = (function(){
             // Insert the HTML into the DOM
             document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
             
+        },
+        displayBudget:function(obj){
+            document.querySelector(DOMStrings.budgetValue).textContent = formatNumber(obj.budget);
         }
     }
-
 })();
 
 var controller = (function (budgetCtrl,UICrtl){
@@ -122,6 +176,12 @@ var controller = (function (budgetCtrl,UICrtl){
         });
     };
 
+    var updateBudget = function(){
+        budgetCtrl.calculateBudget();
+        var budget = budgetCtrl.getBudget();
+        console.log(budget);
+        UICrtl.displayBudget(budget);
+    };
 
     var ctrlAddItem = function(){
 
@@ -137,12 +197,20 @@ var controller = (function (budgetCtrl,UICrtl){
             //2. Add Item to List   
             UIController.addListItem(newItem,input.type);
         }
+
+        updateBudget();
     };
 
 
     return {
         init: function() {
             console.log('Application has started.');
+            UICrtl.displayBudget({
+                budget: 0,
+                totalInc: 0,
+                totalExp: 0,
+                percentage: -1
+            });
             setupEventListeners();
         }
     };
