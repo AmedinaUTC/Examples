@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Axios</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <h1>INCOME:</h1>
+    <div class="income__list">
+    </div>
+    <h1>EXPENSES:</h1>
+    <div class="expenses__list">
+    </div>
+    <script>
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+        ];
+        var date = new Date();
+        axios.get("https://budgetapp-d7819.firebaseio.com/"+monthNames[date.getMonth()].toLowerCase()+".json")
+        .then(response =>{
+            console.log(response.data[Object.keys(response.data)[0]]);
+            var object = response.data[Object.keys(response.data)[0]];
+           
+            var html, newHtml, element;
+            var array = object['exp'];
+            for(var ele in array){
+                var obj = array[ele];
+                element = '.expenses__list';
+                html = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+                newHtml = html.replace('%id%', obj.id);
+                newHtml = newHtml.replace('%description%', obj.description);
+                newHtml = newHtml.replace('%value%', obj.value);
+                
+                // Insert the HTML into the DOM
+                document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
+            }
+            var array = object['inc'];
+            for(var ele in array){
+                var obj = array[ele];
+                element = '.income__list';
+                html = '<div class="item clearfix" id="inc-%id%"> <div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+                newHtml = html.replace('%id%', obj.id);
+                newHtml = newHtml.replace('%description%', obj.description);
+                newHtml = newHtml.replace('%value%', obj.value);
+                
+                // Insert the HTML into the DOM
+                document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
+            }
+
+
+            
+        })
+        .catch(error =>{
+            console.log(error);
+        });
+
+
+
+    </script>
+</body>
+</html>
