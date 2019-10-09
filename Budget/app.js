@@ -221,6 +221,36 @@ var controller = (function (budgetCtrl,UICrtl){
         console.log(budget);
         UICrtl.displayBudget(budget);
     };
+    /*var updatePercentages = function(){
+        for(let j=0; j<data.exp.length;j++){
+            data.exp[j].percentage= Math.round((data.exp[j].value/data.totals.inc)*100);
+        }
+    };*/
+    var loadBudgetInfo = function(){
+        axios.get("https://api.myjson.com/bins/1eoine")
+        .then(function(response){
+            console.log(response);
+            if(response.data !==undefined){
+                for(let i=0; i<response.data["exp"].length; i++){
+                    obj=response.data["exp"][i];
+                    console.log(i+" "+ response.data["exp"][i].value);
+                    newItem = budgetCtrl.addItem("exp",obj.description,obj.value);
+                    UIController.addListItem(newItem,"exp");
+
+                }
+                for(let i=0; i<response.data["inc"].length; i++){
+                    obj=response.data["inc"][i];
+                    console.log(i+" "+ response.data["inc"][i].value);
+                    newItem = budgetCtrl.addItem("inc",obj.description,obj.value);
+                    UIController.addListItem(newItem,"inc");
+
+                }
+            }
+            updateBudget();
+        })
+    };
+
+
 
     var ctrlAddItem = function(){
 
@@ -276,6 +306,7 @@ var controller = (function (budgetCtrl,UICrtl){
                 percentage: -1
             });
             setupEventListeners();
+            loadBudgetInfo();
         }
     };
 
